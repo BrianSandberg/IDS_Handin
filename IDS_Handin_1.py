@@ -10,19 +10,21 @@ class App(npyscreen.NPSAppManaged):
 class FirstForm(npyscreen.ActionFormMinimal):
 
     def create(self):
-
+      #Create the different widgets which can be seen, when the program is started
       self.add(npyscreen.TitleText, w_id="drink_name", name="Name of drink")
       self.add(npyscreen.TitleText, w_id="ingredient_name", name="Search by ingredient")
       self.add(npyscreen.ButtonPress, name="Search!", when_pressed_function=self.btn_press)
       self.add(npyscreen.ButtonPress, name="Feeling lucky?",when_pressed_function=self.random_drink)
       
       
-
+    #The function which is called when the button named "Feeling lucky?" is pressed
     def random_drink(self):
       r_temp = requests.get(url=("https://www.thecocktaildb.com/api/json/v1/1/random.php"))
       self.response = r_temp.json()
       
+      #Prints the name of the random drink found by the API request
       self.add(npyscreen.TitleText, w_id = "randomDrink", name = self.response["drinks"][0]["strDrink"])
+      #Potentially prints up to 15 ingredients from the random drink. 
       if self.response["drinks"][0]["strIngredient1"] !=None:
         self.add(npyscreen.TitleText, w_id = "Ingredient1", name = self.response["drinks"][0]["strIngredient1"])
       if self.response["drinks"][0]["strIngredient2"] !=None:
@@ -55,13 +57,16 @@ class FirstForm(npyscreen.ActionFormMinimal):
         self.add(npyscreen.TitleText, w_id = "Ingredient15", name = self.response["drinks"][0]["strIngredient15"])
       self.add(npyscreen.TitleText, w_id = "drink_instructions", name = self.response["drinks"][0]["strInstructions"])
       
-
+    #The function wchich is called when the button named "Search!" is pressed
     def btn_press(self):
       
+      #If the widget "drink_name" is empty we assume that the user is writing in the other widget called "ingredient_name"
       if self.get_widget("drink_name").value == "":
+        #Search for the ingredient which is written in the widget "ingredient_name"
         r_temp = requests.get(
   url=("https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=" + f'{self.get_widget("ingredient_name").value}'))
         self.response = r_temp.json()
+        #Print a list of the 5 first drinks from the response to contain the searched ingredient
         self.add(npyscreen.TitleText, w_id = "drinks_containing", name = "Drinks containing " + f'{self.get_widget("ingredient_name").value}')
         self.add(npyscreen.TitleText, w_id = "drink", name = self.response["drinks"][0]["strDrink"])
         self.add(npyscreen.TitleText, w_id = "drink1", name = self.response["drinks"][1]["strDrink"])
@@ -69,7 +74,7 @@ class FirstForm(npyscreen.ActionFormMinimal):
         self.add(npyscreen.TitleText, w_id = "drink3", name = self.response["drinks"][3]["strDrink"])
         self.add(npyscreen.TitleText, w_id = "drink4", name = self.response["drinks"][4]["strDrink"])
 
-
+      #We assume that, if this widget has an empty value the user must be writing in the other widget called "drink_name"
       elif self.get_widget("ingredient_name").value == "":
         r_temp = requests.get(url="https://www.thecocktaildb.com/api/json/v1/1/search.php?s=" + f'{self.get_widget("drink_name").value}')
         self.response = r_temp.json()
@@ -77,7 +82,7 @@ class FirstForm(npyscreen.ActionFormMinimal):
         self.add(npyscreen.TitleText, w_id = "Name", name = self.response["drinks"][0]["strDrink"])
         self.add(npyscreen.TitleText, w_id="ingredients", name="Ingredients")
         
-
+       
         if self.response["drinks"][0]["strIngredient1"] !=None:
           self.add(npyscreen.TitleText, w_id = "Ingr_1", name = self.response["drinks"][0]["strIngredient1"])
         if self.response["drinks"][0]["strIngredient2"] !=None:
